@@ -67,3 +67,4 @@ class GlobalChatApp(App):
 
 if __name__ == '__main__':
     GlobalChatApp().run()
+ 
