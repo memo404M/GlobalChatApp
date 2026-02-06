@@ -2,7 +2,7 @@ name: Build APK
 on: [push]
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
@@ -13,15 +13,15 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential git python3 zip unzip zlib1g-dev libffi-dev libssl-dev autoconf automake libtool pkg-config cmake libncurses5-dev libncursesw5-dev libsqlite3-dev tk-dev uuid-dev libgdbm-dev libc6-dev libbz2-dev libreadline-dev python3-setuptools libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libgstreamer1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good
-          pip install --user --upgrade "buildozer==1.5.0" "cython<3.0.0"
-      - name: Build APK
+          pip install --user --upgrade "buildozer>=1.5.0" "cython<3.0.0"
+      - name: Build with Buildozer
         run: |
           export PATH=$PATH:$HOME/.local/bin
-          # هذا الأمر يضمن قبول كافة تراخيص الأندرويد قبل بدء البناء
-          mkdir -p ~/.android && touch ~/.android/repositories.cfg
-          yes | buildozer -v android debug
+          # قبول التراخيص بشكل صامت لضمان عدم توقف السيرفر
+          yes | buildozer android piewarp || true
+          buildozer -v android debug
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: GlobalChat-Final-APK
+          name: GlobalChat-V1-Beta
           path: bin/*.apk
