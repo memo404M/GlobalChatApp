@@ -1,0 +1,25 @@
+name: Build APK
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential git python3 zip unzip zlib1g-dev libffi-dev libssl-dev autoconf automake libtool pkg-config cmake libncurses5-dev libncursesw5-dev libtinfo5 cmake libsqlite3-dev tk-dev uuid-dev libgdbm-dev libc6-dev libbz2-dev libreadline-dev python3-setuptools libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libgstreamer1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good
+          pip install --user --upgrade buildozer cython==0.29.33
+      - name: Build with Buildozer
+        run: |
+          export PATH=$PATH:$HOME/.local/bin
+          buildozer -v android debug
+      - name: Upload APK
+        uses: actions/upload-artifact@v2
+        with:
+          name: package
+          path: bin/*.apk
