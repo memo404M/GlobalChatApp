@@ -17,9 +17,10 @@ jobs:
       - name: Build APK
         run: |
           export PATH=$PATH:$HOME/.local/bin
-          buildozer -v android debug
+          # هذا السطر يحل مشكلة التراخيص التي ظهرت لك
+          yes | buildozer -v android debug
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: GlobalChat-Application
+          name: GlobalChat-App
           path: bin/*.apk
