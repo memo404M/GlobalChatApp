@@ -3,19 +3,31 @@ on: [push, workflow_dispatch]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build with Buildozer
-        uses: ArtemGrubyak/buildozer-action@v1
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          buildozer_version: master
-          command: android debug
+          python-version: '3.9'
+
+      - name: Install Buildozer and Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential git zip unzip libffi-dev libssl-dev
+          pip install --user --upgrade buildozer cython==0.29.33
+
+      - name: Build APK with Buildozer
+        run: |
+          export PATH=$PATH:$HOME/.local/bin
+          # قبول التراخيص وبدء البناء مباشرة دون توقف
+          yes | buildozer android debug || true
+          buildozer android debug
 
       - name: Upload APK
-        # هنا طبقنا نصيحة صديقك باستخدام الإصدار v4 المضمون
+        # استخدام النسخة v4 كما نصحك صديقك تماماً
         uses: actions/upload-artifact@v4
         with:
-          name: MyApp-Final
+          name: GlobalChat-Final-App
           path: bin/*.apk
