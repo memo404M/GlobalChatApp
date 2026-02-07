@@ -1,70 +1,51 @@
+# main.py
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen
+from kivy.uix.label import Label
+from kivy.uix.textinput import TextInput
+from kivy.uix.button import Button
 from kivy.uix.boxlayout import BoxLayout
-from kivy.lang import Builder
-
-# تصميم الواجهة بلغة KV لإضافة ألوان وهوية بصرية
-Builder.load_string('''
-<LoginScreen>:
-    canvas.before:
-        Color:
-            rgba: 0.1, 0.1, 0.2, 1
-        Rectangle:
-            pos: self.pos
-            size: self.size
-    BoxLayout:
-        orientation: 'vertical'
-        padding: 50
-        spacing: 20
-        Label:
-            text: "Global Chat"
-            font_size: '32sp'
-            bold: True
-            color: 0, 1, 0.8, 1
-        TextInput:
-            id: username
-            hint_text: "ادخل اسم المستخدم (اليوزر)"
-            multiline: False
-            size_hint_y: None
-            height: '50dp'
-        Button:
-            text: "دخول للدردشة"
-            size_hint_y: None
-            height: '50dp'
-            background_color: 0, 0.7, 0.9, 1
-            on_press: root.login()
-
-<ChatScreen>:
-    BoxLayout:
-        orientation: 'vertical'
-        Label:
-            text: "غرفة الدردشة العامة"
-            size_hint_y: None
-            height: '50dp'
-        ScrollView:
-            Label:
-                id: chat_logs
-                text: "مرحباً بك في النسخة التجريبية الأولى..."
-                text_size: self.width, None
-                size_hint_y: None
-                height: self.texture_size[1]
-''')
 
 class LoginScreen(Screen):
-    def login(self):
-        # هنا سنربط مستقبلاً بنظام الحسابات
-        self.manager.current = 'chat'
+    def __init__(self, **kwargs):
+        super(LoginScreen, self).__init__(**kwargs)
+        self.layout = BoxLayout(orientation='vertical')
+        self.name_input = TextInput(multiline=False)
+        self.layout.add_widget(self.name_input)
+        self.button = Button(text='دخول')
+        self.button.bind(on_press=self.login)
+        self.layout.add_widget(self.button)
+        self.add_widget(self.layout)
+
+    def login(self, instance):
+        name = self.name_input.text
+        if name:
+            self.manager.current = 'chat'
 
 class ChatScreen(Screen):
-    pass
+    def __init__(self, **kwargs):
+        super(ChatScreen, self).__init__(**kwargs)
+        self.layout = BoxLayout(orientation='vertical')
+        self.text_input = TextInput(multiline=False)
+        self.layout.add_widget(self.text_input)
+        self.button = Button(text='إرسال')
+        self.button.bind(on_press=self.send_message)
+        self.layout.add_widget(self.button)
+        self.messages = Label(text='')
+        self.layout.add_widget(self.messages)
+        self.add_widget(self.layout)
 
-class GlobalChatApp(App):
+    def send_message(self, instance):
+        message = self.text_input.text
+        self.messages.text += f'{self.manager.current_screen.name}: {message}\n'
+        self.text_input.text = ''
+
+class MyApp(App):
     def build(self):
-        sm = ScreenManager()
-        sm.add_widget(LoginScreen(name='login'))
-        sm.add_widget(ChatScreen(name='chat'))
-        return sm
+        self.sm = ScreenManager()
+        self.sm.add_widget(LoginScreen(name='login'))
+        self.sm.add_widget(ChatScreen(name='chat'))
+        return self.sm
 
 if __name__ == '__main__':
-    GlobalChatApp().run()
- 
+    MyApp().run()
